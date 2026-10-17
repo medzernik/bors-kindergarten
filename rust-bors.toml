@@ -1,0 +1,68 @@
+# Maximum duration of CI workflows before they are considered timed out.
+# (Required)
+timeout = 3600
+
+# Maximum time to wait for PR CI before removing a tentative approval.
+# (Optional, defaults to 7200 seconds)
+pr_ci_timeout = 7200
+
+# Whether to enable the merge queue or not.
+# When enabled, approved PRs will be automatically merged.
+# (Optional, defaults to false)
+merge_queue_enabled = true
+
+# Whether merge conflicts should be reported on PRs.
+# (Optional, defaults to false)
+report_merge_conflicts = true
+
+# Labels that will block approval when present on a PR
+# (Optional)
+labels_blocking_approval = ["final-comment-period", "proposed-final-comment-period"]
+
+# Labels that should be set on a PR after an event happens.
+# "+<label>" adds the label, while "-<label>" removes the label after the event.
+# Supported events:
+# - approved: A PR was approved
+# - unapproved: A PR was unapproved
+# - try_failed: Try build has failed
+# - auto_build_succeeded: Auto build has succeeded, the PR was merged
+# - auto_build_failed: Auto build has failed
+# (Optional)
+[labels]
+approved = ["+approved"]
+unapproved = ["-approved"]
+try_failed = []
+# You can also use this form, which allows specifying a set of labels (`unless`). If any of those
+# is present on the PR, the modifications will not be applied.
+auto_build_succeeded = { modifications = ["+foo", "+bar"], unless = ["baz"] }
+auto_build_failed = ["+foo", "+bar"]
+conflict = ["+conflict"]
+
+# Configuration for launching self-hosted GitHub runners on EC2.
+[ec2_runners]
+# GitHub self-hosted runner group ID.
+# Note that it should be configured to work on the branches for which bors will spawn the EC2
+# runners!
+runner_group_id = 1
+# Prefix of the `os` label of GitHub Actions jobs.
+# If the `os` field of a job begins with this prefix, bors will attempt to parse the `os` field
+# and use its information to configure the EC2 instance.
+# The format of the label should be `<prefix>-<image-name>-<instance-type>-<label>`.
+label_prefix = "ec2"
+# Region where the EC2 instance will be spawned.
+region = "us-east-2"
+# Map of image names to AMI IDs.
+# If you specify `ubuntu26.04` as the image name with the config below, bors will start an EC2
+# instance with the given AMI ID.
+images = {
+    "ubuntu26.04" = "/aws/service/canonical/ubuntu/server/26.04/stable/current/amd64/hvm/ebs-gp3/ami-id"
+}
+# Whether the self-hosted GitHub runner should be started with a repository or an organization
+# JIT config.
+# Use organization for production deployments, and repository for local testing.
+jit_runner = "organization" # "repository" or "organization"
+# Allowed EC2 instance types that can be used in the `<instance-type>` field of the `os` label.
+allowed_instances = ["c8a.12xlarge"]
+
+# Enable unrolling of rollups
+[unroll]
